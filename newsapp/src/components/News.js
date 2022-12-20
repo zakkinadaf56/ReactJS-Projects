@@ -1,26 +1,59 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem'
+import Spinner from './Spinner';
 
 export class News extends Component {
   constructor(){
     super();
    this.state={
     articles: [],
-    loading:false
+    loading:false,
+    page:1
    } 
   }
 
   async componentDidMount(){
-    let url="https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=bdebb8fdead74df7845bbb8db2f7b3b8";
+    let url=`https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=bdebb8fdead74df7845bbb8db2f7b3b8&pageSize=${this.props.pageSize}`;
     let data=await fetch(url);
     let parsedData=await data.json()
-    this.setState({articles:parsedData.articles})
+    this.setState({articles:parsedData.articles,totalResults:parsedData.totalResults})
+  }
+
+  handlePrevClick = async ()=>{
+    console.log("prev");
+
+    let url=`https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=bdebb8fdead74df7845bbb8db2f7b3b8&page=${this.state.page+-1}&pageSize=${this.props.pageSize}`;
+    let data=await fetch(url);
+    let parsedData=await data.json()
+    this.setState({
+      page:this.state.page-1,
+      articles:parsedData.articles
+    })
+  }
+
+
+  handleNextClick = async ()=>{
+    console.log("NExt")
+
+    if(this.state.page + 1 > Math.ceil(this.state.totalResults/this.props.pageSize)){
+
+    }
+    else{
+      let url=`https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=bdebb8fdead74df7845bbb8db2f7b3b8&page=${this.state.page+1}&pageSize=${this.props.pageSize}`;
+      let data=await fetch(url);
+      let parsedData=await data.json()
+      this.setState({
+        page:this.state.page+1,
+        articles:parsedData.articles
+      })
+    }
   }
 
   render() {
     return (
       <div className='container my-3'>
-        <h2>NewsMonkey Top headlines</h2>
+        <h1 className="text-center">NewsMonkey Top headlines</h1>
+        {this.state.loading &&<Spinner/>}
         <div className="row">
         {this.state.articles.map((element)=>{
 
@@ -30,8 +63,8 @@ export class News extends Component {
         })}
         </div>
         <div className="container d-flex justify-content-between">
-        <button type="button" class="btn btn-dark ">&larr; Previous</button>
-        <button type="button" class="btn btn-dark">Next &rarr;</button>
+        <button disabled={this.state.page<=1} type="button" className="btn btn-dark" onClick={this.handlePrevClick}>&larr; Previous</button>
+        <button disabled={this.state.page + 1 > Math.ceil(this.state.totalResults/this.props.pageSize)} type="button" className="btn btn-dark" onClick={this.handleNextClick}>Next &rarr;</button>
         </div>
       </div>
     )
