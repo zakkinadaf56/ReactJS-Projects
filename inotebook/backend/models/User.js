@@ -11,7 +11,7 @@ const UserSchema = new Schema({
     email:{
         type:String,
         required:true,
-        // unique:true
+        unique:true
     },
     password:{
         type:String,
@@ -22,5 +22,5 @@ const UserSchema = new Schema({
         default:Date.now
     },
 });
-
-module.exports=mongoose.model('user',UserSchema)
+const User=mongoose.model('user',UserSchema)
+module.exports=User;
